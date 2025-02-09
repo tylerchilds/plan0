@@ -182,8 +182,11 @@ $.style(`
     padding: .5rem 1rem;
   }
 
-  & .viewport {
+  & .widget-frame {
     overflow: auto;
+  }
+
+  & .viewport {
     display: none;
     background: white;
     height: 100%;
