@@ -13,7 +13,8 @@ const apps = [
 
 const $ = elf('app-root', {
   index: 0,
-  light: true
+  light: true,
+  timers: {}
 })
 
 $.draw((target) => {
@@ -42,7 +43,7 @@ $.draw((target) => {
 })
 
 const actions = {
-  A: (target) => {
+  A: (target, type) => {
     const { index } = $.learn()
     const node = target.querySelector(apps[index].app)
 
@@ -52,13 +53,13 @@ const actions = {
           jsonrpc: "2.0",
           method: 'start/stop',
           params: {
-
+            type
           }
         }
       }))
     }
   },
-  B: (target) => {
+  B: (target, type) => {
     const { index } = $.learn()
     const node = target.querySelector(apps[index].app)
 
@@ -68,32 +69,84 @@ const actions = {
           jsonrpc: "2.0",
           method: 'reset',
           params: {
-
+            type
           }
         }
       }))
-
     }
   },
-  X: (target) => {
+  X: (target, type) => {
     const { index } = $.learn()
     $.teach({
       index: (index + 1) % apps.length
     })
   },
-  Y: (target) => {
+  Y: (target, type) => {
     const { light } = $.learn()
 
     $.teach({ light: !light })
   }
 }
 
+$.when('pointerdown', '[data-press]', (event) => {
+  const { press } = event.target.dataset
+  const root = event.target.closest($.link)
+  const timerId = setTimeout(() => {
+    $.teach({ [press]: null }, clearTimerReducer)
+    const action = actions[press]
+
+    if(action) {
+      action(root, 'hold')
+    }
+  }, 500)
+
+  $.teach({ [press]: timerId }, setTimerReducer)
+})
+
+function setTimerReducer(state, payload) {
+  return {
+    ...state,
+    timers: {
+      ...state.durations,
+      ...payload
+    }
+  }
+}
+
+$.when('pointerup', '[data-press]', (event) => {
+  const { press } = event.target.dataset
+  const root = event.target.closest($.link)
+
+  const timerId = $.learn().timers[press]
+
+  if(timerId) {
+    clearTimeout(timerId)
+    $.teach({ [press]: null }, clearTimerReducer)
+    const action = actions[press]
+
+    if(action) {
+      action(root, 'click')
+    }
+  }
+})
+
+function clearTimerReducer(state, payload) {
+  return {
+    ...state,
+    timers: {
+      ...state.durations,
+      ...payload
+    }
+  }
+}
+
+
 $.when('click', '[data-press]', (event) => {
   const { press } = event.target.dataset
   const action = actions[press]
 
   if(action) {
-    action(event.target.closest($.link))
+    action(event.target.closest($.link), 'click')
   }
 })
 
@@ -102,6 +155,12 @@ $.style(`
     display: block;
     height: 100%;
     background: black;
+    user-select: none; /* supported by Chrome and Opera */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    touch-action: none;
   }
 
   & .watch {

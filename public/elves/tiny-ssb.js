@@ -55,12 +55,14 @@ $.draw(() => {
 
 const jsonrpc = {
   'start/stop': (params) => {
+    console.log({ params })
     const { index, messages } = $.learn()
     $.teach({
       index: (index + 1) % Object.keys(messages).length
     })
   },
   'reset': (params) => {
+    console.log({ params })
     const { index, messages } = $.learn()
     const id = Object.keys(messages)[index]
     const { state } = messages[id]
