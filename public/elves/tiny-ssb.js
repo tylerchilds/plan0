@@ -57,7 +57,7 @@ $.draw(() => {
   return Object.keys(messages).map((id, i) => {
     const message = messages[id]
     return `
-      <div class="message ${index === i ? 'focused':''}" id="${id}">
+      <div aria-role="button" class="message ${index === i ? 'focused':''}" id="${id}" data-index="${i}">
         <div class="message-body">
           ${message.text}
         </div>
@@ -65,9 +65,9 @@ $.draw(() => {
           ${
             message.state !== 'unacknowledged'
               ? `
-                <span class="acknowledgement">
+                <button class="acknowledgement" data-message="${id}">
                   ${message.state}
-                </span>
+                </button>
               `
               : message.responses.map((x, n) => {
                 return `
@@ -81,6 +81,21 @@ $.draw(() => {
       </div>
     `
   }).join('')
+}, {
+  afterUpdate: (target) => {
+    {
+      const { index } = $.learn()
+
+      if(target.index !== index) {
+        target.index = index
+        const active = target.querySelector('.message.focused')
+
+        if(active) {
+          active.scrollIntoView()
+        }
+      }
+    }
+  }
 })
 
 const jsonrpc = {
@@ -149,6 +164,59 @@ $.when('json-rpc', '', (event) => {
   }
 })
 
+$.when('click', '.message', (event) => {
+  const { index } = event.target.dataset
+  $.teach({
+    index: parseInt(index)
+  })
+})
+
+$.when('click', '.acknowledgement', (event) => {
+  const { message } = event.target.dataset
+
+  const newState = 'unacknowledged'
+  $.teach({ id: message,  newState }, (state, payload) => {
+    return {
+      ...state,
+      messages: {
+        ...state.messages,
+        [payload.id]: {
+          ...state.messages[payload.id],
+          state: payload.newState
+        }
+      }
+    }
+  })
+
+})
+
+$.when('click', '.response', (event) => {
+  const { message, response } = event.target.dataset
+  const focusedResponseIndex = parseInt(response)
+  const { index, messages } = $.learn()
+  const id = Object.keys(messages)[index]
+  const { responses } = messages[id]
+
+
+  const newState = responses[focusedResponseIndex]
+
+  $.teach({ id: message, focusedResponseIndex, newState }, (state, payload) => {
+    return {
+      ...state,
+      messages: {
+        ...state.messages,
+        [payload.id]: {
+          ...state.messages[payload.id],
+          focusedResponseIndex: payload.focusedResponseIndex,
+          state: payload.newState
+        }
+      }
+    }
+  })
+})
+
+
+
 $.style(`
   & {
     display: block;
@@ -163,6 +231,10 @@ $.style(`
     color: rgba(255,255,255,.5);
     display: grid;
     gap: 1rem;
+  }
+
+  & .message:not(.focused) > * {
+    pointer-events: none;
   }
 
   & .message.focused .message-body {
