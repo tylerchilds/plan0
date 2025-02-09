@@ -2,13 +2,17 @@ import elf from '@silly/elf'
 
 const apps = [
   {
-    app: 'hello-world',
-    html: `<hello-world></hello-world>`
+    app: 'how-to',
+    html: `<how-to></how-to>`
   },
   {
     app: 'tiny-ssb',
     html: `<tiny-ssb></tiny-ssb>`
-  }
+  },
+  {
+    app: 'hello-world',
+    html: `<hello-world></hello-world>`
+  },
 ]
 
 const $ = elf('app-root', {

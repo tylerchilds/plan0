@@ -260,6 +260,8 @@ $.style(`
     background: rgba(0,0,0,.85);
     color: white;
     border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 4px;
   }
 
   & .response.focused {
@@ -273,5 +275,7 @@ $.style(`
     border: none;
     color: white;
     border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 4px;
   }
 `)
