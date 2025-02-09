@@ -22,8 +22,8 @@ $.draw((target) => {
   return `
     <div class="watch ${light?'light':''}">
       <div class="action-row">
-        <button data-press="Y">Light</button>
-        <button data-press="A">Start/Stop</button>
+        <button class="yellow" data-press="Y">Y</button>
+        <button class="blue" data-press="X">X</button>
       </div>
 
       <div class="widget-frame">
@@ -33,8 +33,8 @@ $.draw((target) => {
       </div>
 
       <div class="action-row">
-        <button data-press="X">Mode</button>
-        <button data-press="B">Reset</button>
+        <button class="red" data-press="B">B</button>
+        <button class="green" data-press="A">A</button>
       </div>
   `
 }, {
@@ -51,7 +51,7 @@ const actions = {
       node.dispatchEvent(new CustomEvent('json-rpc', {
         detail: {
           jsonrpc: "2.0",
-          method: 'start/stop',
+          method: 'a',
           params: {
             type
           }
@@ -67,7 +67,7 @@ const actions = {
       node.dispatchEvent(new CustomEvent('json-rpc', {
         detail: {
           jsonrpc: "2.0",
-          method: 'reset',
+          method: 'b',
           params: {
             type
           }
@@ -176,10 +176,8 @@ $.style(`
   }
 
   & .action-row button {
-    background: black;
     border: none;
     border-radius: 0;
-    color: white;
     font-weight: bold;
     padding: .5rem 1rem;
   }
@@ -193,5 +191,49 @@ $.style(`
 
   & .watch.light .viewport {
     display: block;
+  }
+
+  & .yellow {
+    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.75)), var(--yellow);
+    color: rgba(255,255,255,.85);
+  }
+
+  & .yellow:hover,
+  & .yellow:focus {
+    background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.3)), var(--yellow);
+    color: rgba(255,255,255,1);
+  }
+
+  & .blue {
+    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.75)), var(--blue);
+    color: rgba(255,255,255,.85);
+  }
+
+  & .blue:hover,
+  & .blue:focus {
+    background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.3)), var(--blue);
+    color: rgba(255,255,255,1);
+  }
+
+  & .red {
+    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.75)), var(--red);
+    color: rgba(255,255,255,.85);
+  }
+
+  & .red:hover,
+  & .red:focus {
+    background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.3)), var(--red);
+    color: rgba(255,255,255,1);
+  }
+
+  & .green {
+    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.75)), var(--green);
+    color: rgba(255,255,255,.85);
+  }
+
+  & .green:hover,
+  & .green:focus {
+    background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.3)), var(--green);
+    color: rgba(255,255,255,1);
   }
 `)
